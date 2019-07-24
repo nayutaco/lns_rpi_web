@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="content-outer">
+        <p id="content-tag">Change SSH-user (pi) Password</p>
+        <div class="content-inner">
+            <form action="/list24.html" method="POST">
+                <input type="password" name="password" class="inputbox">
+                <button class="sendbutton" name="passbtn">Change</button>
+            </form>
+            <p>{{result}}</p>
+        </div>
+    </div>
+{% endblock %}

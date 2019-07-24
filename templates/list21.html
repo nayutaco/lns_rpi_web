@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="content-outer">
+        <p id="content-tag">Change hostname</p>
+        <div class="content-inner">
+            <form action="/list21.html" method="POST">
+                <input type="text" name="hostname" class="inputbox">
+                <button class="sendbutton" name="hnamebtn">Change</button>
+            </form>
+            <p>{{result}}</p>
+        </div>
+    </div>
+{% endblock %}

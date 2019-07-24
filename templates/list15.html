@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="content-outer">
+        <p id="content-tag">Device Shutdown</p>
+        <div class="content-inner">
+            <form action='/list15.html' method="POST">
+                <button name="halt" class="listbutton" style="width: auto;">Shutdown</button>
+            </form>
+            <p>{{result}}</p>
+        </div>
+    </div>
+{% endblock %}

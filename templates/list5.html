@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="content-outer">
+        <p id="content-tag">Create Invoice</p>
+        <div class="content-inner">
+            <form action="/list5.html" method="POST">
+                <input type="number" min="1" name="invoice" class="inputbox" placeholder="msat">
+                <button class="sendbutton" name="invoicebtn">Create</button>
+            </form>
+            <p>{{result}}</p>
+        </div>
+    </div>
+{% endblock %}

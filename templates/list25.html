@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="content-outer">
+        <p id="content-tag">Reset Chain Data</p>
+        <div class="content-inner">
+            <form action='/list25.html' method="POST">
+                <button class="listbutton" style="width: auto;" name="idselect">Reset with Reboot</button>
+            </form>
+            <p>{{result}}</p>
+
+            <button class="noticebutton">NOTICE▸</button>
+            <div class="noticebox">If ptarmigan doesn't work in spite of waitting for a while, you needs to reset chaindata of bitcoinj. This function is good for the situation like loop processing of block download.</div>
+
+        </div>
+    </div>
+{% endblock %}

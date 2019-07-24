@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="content-outer">
+        <p id="content-tag">Withdraw to Wallet</p>
+        <div class="content-inner">
+            <form action='/list20.html' method="POST">
+            <button name="ptw" class="listbutton" style="width: auto;">Withdraw</button>
+            </form>
+            <p>{{msg}}</p>
+            <p>{{result}}</p>
+        </div>
+    </div>
+{% endblock %}

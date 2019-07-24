@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="content-outer">
+        <p id="content-tag">Download Logs</p>
+        <div class="content-inner">
+            <form action='/list22.html' method="POST">
+                <button class="listbutton" style="width: auto;" name="idselect" value='log'>Download</button>
+            </form>
+            <p>{{result}}</p>
+
+            <button class="noticebutton">NOTICE▸</button>
+            <div class="noticebox">The file created by this function includes logs about "stdout", "ptarmigan", "bitcoinj", "web".</div>
+
+        </div>
+    </div>
+{% endblock %}

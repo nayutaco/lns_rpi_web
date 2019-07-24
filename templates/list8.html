@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="content-outer">
+        <p id="content-tag">Send all 1st Layer Balance</p>
+        <div class="content-inner">
+            <form action="/list8.html" method="POST">
+            <input type="text" name="addr"  class="inputbox" placeholder="Bitcoin address">
+            <button class="sendbutton" name="addrbtn">Send</button></form>
+            <p>{{result}}</p>
+        </div>
+    </div>
+{% endblock %}

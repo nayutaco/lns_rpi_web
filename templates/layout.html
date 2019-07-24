@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>        
+    <title>Ptarmigan Controller</title>
+    <meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <script src="../static/js/jquery-3.4.1.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../static/css/normalize.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/component.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/demo.css">
+    <link href="../static/fontawesome/css/all.css" rel="stylesheet">
+    <script src="../static/js/modernizr.custom.js"></script>
+    <link rel="shortcut icon" type="image/x-icon" href="static/img/favicon.ico">
+</head>
+<body>
+    <div id="st-container" class="st-container">
+        <nav class="st-menu st-effect-1" id="menu-1">
+            <!-- sidebar content -->
+            <h2>menu</h2>
+            <div class="container">
+                <ul class="nav">
+                    <li>
+                        <a class="grayshadow" href="#">
+                            <span class="fas fa-bolt fa-fw menuicon"></span>
+                            <span class="menuname">Lightning Network</span>
+                        </a>
+                        <ul class="a2">
+                            <li><a href="./list1.html" class="list">Information</a></li>
+                            <li><a href="./list2.html" class="list">Channel Information</a></li>
+                            <li><a href="./list3.html" class="list">Closed Channel</a></li>
+                            <li><a href="./list9.html" class="list">Connect Node</a></li>
+                            <li><a href="./list20.html" class="list">Withdraw to Wallet</a></li>
+                        </ul>
+                    </li>
+                    <li><a class="grayshadow" href="#">
+                            <span class="fas fa-qrcode fa-fw menuicon"></span>
+                            <span class="menuname">Invoice</span>
+                        </a>
+                        <ul class="a2">
+                            <li><a href="./list5.html" class="list">Create Invoice</a></li>
+                            <li><a href="./list4.html" class="list">Created Invoice List</a></li>
+                        </ul>
+                    </li>
+                    <li><a class="grayshadow" href="#">
+                            <span class="fab fa-bitcoin fa-fw menuicon"></span>
+                            <span class="menuname">Bitcoin</span>
+                        </a>
+                        <ul class="a2">
+                            <li><a href="./list6.html" class="list">Information</a></li>
+                            <li><a href="./list8.html" class="list">Send all 1st Layer Balance</a></li>
+                            <li><a href="./list18.html" class="list">Change Blockchain Network</a></li>
+                        </ul>
+                    </li>
+                    <li><a class="grayshadow" href="#">
+                            <span class="fas fa-hdd fa-fw menuicon"></span>
+                            <span class="menuname">Device</span>
+                        </a>
+                        <ul class="a2">
+                                <li><a href="./list17.html" class="list">Information</a></li>
+                                <li><a href="./list14.html" class="list">Reboot</a></li>
+                                <li><a href="./list15.html" class="list">Shutdown</a></li>
+                                <li><a href="./list12.html" class="list">WiFi Setting</a></li>
+                                <li><a href="./list24.html" class="list">Change SSH Password</a></li>
+                        </ul>
+                    </li>
+                    <li><a class="grayshadow" href="#">
+                            <span class="fas fa-pastafarianism fa-fw menuicon"></span>
+                            <span class="menuname">Debug</span>
+                        </a>
+                        <ul class="a2">
+                            <li><a href="./list22.html" class="list">Download Logs</a></li>
+                            <li><a href="./list25.html" class="list">Reset Chain Data</a></li>
+                            <li><a href="./list19.html" class="list">Backup / Restore DB</a></li>
+                        </ul>
+                    </li>
+                    <li><a class="grayshadow" href="./index.html" id="home">
+                        <span class="fas fa-home fa-fw menuicon"></span>
+                        <span class="menuname">Back home</span>
+                        </a>
+                    </li>
+                </ul>
+            </div><!--container-->
+        </nav>
+        
+
+        
+        <div class="st-content"><!-- this is the wrapper for the content -->
+            <div class="st-content-inner"><!-- extra div for emulating position:fixed of the menu -->
+                <!-- the content -->
+                <div class="main clearfix">
+						<div id="st-trigger-effects" class="column">
+                            <button data-effect="st-effect-1" class="menubtn">≡</button>
+                        </div>
+                        
+                        {% block content %}
+                        {% endblock %}
+                        
+                </div>
+            </div><!-- /st-content-inner -->
+
+        </div><!-- /st-content -->
+    
+        <script>
+            $(document).ready(function() {
+                $(function() {
+                    var nav = $('.nav');
+                    $('li', nav).click(function(e){
+                        if($('ul',this).is(":hidden")){
+                            ('ol',this).display = "block";
+                            $('ul', this).stop().slideDown('fast');
+                        }
+                        else{
+                            $('ul', this).stop().slideUp('fast');
+                        }
+                    })
+                });
+
+                $(function(){
+                    $(".noticebutton").on("click", function (){
+                        if ( $(".noticebox").css("display") == "none" ) {
+                            $(".noticebutton").addClass("focus");
+                            $(".noticebutton").text("NOTICE▾");
+                            $(".noticebox").slideDown();
+                        }else {
+                            $(".noticebutton").removeClass("focus");
+                            $(".noticebutton").text("NOTICE▸");
+                            $(".noticebox").slideUp();
+                        }
+                    });
+                });
+            });
+        </script>
+    </div><!-- /st-container -->
+
+    <script src="../static/js/classie.js"></script>
+    <script src="../static/js/sidebarEffects.js"></script>
+</body>
+</html>

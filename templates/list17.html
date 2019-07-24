@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="content-outer">
+        <p id="content-tag">Device Information</p>
+        <div class="content-inner">
+                <table class="u-full-width">
+                    <caption></caption>
+                    <thead>
+                        <tr class="headline">
+                            <th class="headtd" style="vertical-align: middle;">name</th>
+                            <th>value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="height: 31.5px;">
+                            <td class="headtd" style="vertical-align: middle;">User</td>
+                            <td style="align-items: center; display:inline-flex;width: 100%">{{id}}<br>
+                                <form action="/list23.html" style="margin: 0 0 0 auto;padding-left: 5px;"><button class="infochange"><i class="fas fa-chevron-circle-left"></i></button></form>
+                            </td>
+                        <tr style="height: 31.5px;">
+                            <td class="headtd" style="vertical-align: middle;">IP</td>
+                            <td>{{ip}}</td>
+                        </tr>
+                        <tr style="height: 31.5px;">
+                            <td class="headtd" style="vertical-align: middle;">hostname</td>
+                            <td style="align-items: center; display:inline-flex;width: 100%">{{hostname}}<br>
+                                <form action="/list21.html" style="margin: 0 0 0 auto;padding-left: 5px;"><button class="infochange"><i class="fas fa-chevron-circle-left"></i></button></form>
+                            </td>
+                        </tr>
+                        <tr style="height: 31.5px;">
+                            <td class="headtd" style="vertical-align: middle;">SSID</td>
+                            <td>{{ssid}}</td>
+                        </tr>
+                        <tr style="height: 31.5px;">
+                            <td class="headtd" style="vertical-align: middle;">DISK(used/max)</td>
+                            <td>{{usedsize}}B / {{maxsize}}B</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

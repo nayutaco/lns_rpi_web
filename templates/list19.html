@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="content-outer">
+        <p id="content-tag">Backup / Restore DB</p>
+        <div class="content-inner">
+            <form action='/list19.html' method="POST">
+                <button class="listbutton" style="width: 130px;" name="idselect" value='bk'>Backup</button>
+                <br>
+                <button class="listbutton" style="width: 130px;" name="idselect" value='rs'>Restore</button>
+            </form>
+            <p>{{result}}</p>
+
+            <button class="noticebutton">NOTICE▸</button>
+            <div class="noticebox">Backup file created by this function doesn't include this device's information (e.g."pi" password), but only information on "Lightning Network", "Bitcoin", "Wifi Setting". So you need to set the device's information again after restoring.</div>
+
+        </div>
+    </div>
+{% endblock %}

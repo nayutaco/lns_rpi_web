@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="content-outer">
+        <p id="content-tag">Change Log-in User ID / Password</p>
+        <div class="content-inner">
+            <form action="/list23.html" method="POST">
+                <p><input type="text" name="user" class="inputbox" style="width: 300px" placeholder="User ID"></p>
+                <p><input type="password" name="password" class="inputbox" style="width: 300px" placeholder="Password"></p>
+                <button class="listbutton" style="width: auto; height: auto;">Change</button>
+            </form>
+            <p>{{result}}</p>
+            </div>
+    </div>
+{% endblock %}

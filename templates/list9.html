@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="content-outer">
+        <p id="content-tag">Connect Node</p>
+        <div class="content-inner">
+                <form action="/list9.html" method="POST">
+                    <input type="text" name = "nodeinfo" class="inputbox"  placeholder="NODE_ID@IPADDR:PORT">
+                <button class="sendbutton">Connect</button>
+                </form>
+                <p>{{result}}</p>
+
+                <button class="noticebutton">NOTICE▸</button>
+                <div class="noticebox">You have to enter above form in "NODE_ID@IPADDR:PORT" format. If you forget to add port number, this function complements ":9735" that is the default port number of Lightning Network.</div>
+
+            </div>
+    </div>
+{% endblock %}

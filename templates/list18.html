@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="content-outer">
+        <p id="content-tag">Change Blockchain Network</p>
+        <div class="content-inner">
+            <p>{{result}}</p><br>
+            <form action='/list18.html' method="POST">
+                <button name="change" class="listbutton" style="width: auto;">Change {{network}} with Reboot</button>
+            </form>
+            <p>{{msg}}</p>
+        </div>
+    </div>
+{% endblock %}

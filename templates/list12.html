@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="content-outer">
+        <p id="content-tag">WiFi Setting</p>
+        <div class="content-inner">
+                <form action="/list12.html" method="POST">
+                    <p><input type="text" name="ssid" class="inputbox" style="width: 300px" placeholder="SSID"></p>
+                    <p><input type="password" name="password" class="inputbox" style="width: 300px" placeholder="Password"></p>
+                    <button class="listbutton" style="width: 83px; height: auto;">Set</button>
+                </form>
+                <p>{{result}}</p>
+
+                <button class="noticebutton">NOTICE▸</button>
+                <div class="noticebox">After setting for WiFi, you have to change Client mode in "Reboot" of "Device" menu. On client mode, this device connects WiFi you set.</div>
+
+        </div>
+    </div>
+{% endblock %}

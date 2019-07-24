@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="content-outer">
+        <p id="content-tag">Device Reboot</p>
+        <div class="content-inner">
+            <form action='/list14.html' method="POST">
+                <button name="cmdselect" value="normal" class="listbutton">Normal Reboot</button><br>
+                <button name="cmdselect" value="client" class="listbutton">Change Client Mode</button><br>
+                <button name="cmdselect" value="ap" class="listbutton">Change AP Mode</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
