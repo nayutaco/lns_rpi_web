@@ -221,6 +221,9 @@ def callback_createinvoice(params):
     try:
         app.logger.info('CREATE_INVOICE start')
 
+        linux_cmd_subprocess('sudo rm -f ' + PROGDIR + '/invoice.txt')
+        linux_cmd_subprocess('sudo rm -f ' + PROGDIR + '/invoice.png')
+
         th = threading.Thread(target=linux_cmd_exec, args=(EXE_GET_INVOICE + str(params.strip()),), name='invoice')
         th.start()
 
@@ -239,9 +242,6 @@ def callback_createinvoice(params):
         linux_cmd_exec(cmd)
         result = '<p></p><a href="#"><img src="./static/qr/' + date + '"></a>'
         result += '<p class="bolt11">' + bolt11 + '<p>'
-
-        linux_cmd_exec('sudo rm -f ' + PROGDIR + '/invoice.txt')
-        linux_cmd_exec('sudo rm -f ' + PROGDIR + '/invoice.png')
 
     except Exception as e:
         app.logger.error('CREATE_INVOICE failed')
