@@ -81,16 +81,6 @@ def socket_send(req):
     app.logger.info(req + ' success')
     return response
 
-def linux_cmd_exec(cmd):
-    app.logger.info('[' + cmd + ']' + ' start')
-    ret = ''
-    try:
-        ret = subprocess.check_output(cmd.split(' ')).strip()
-        app.logger.info('[' + cmd + ']' + ' success')
-    except subprocess.CalledProcessError as e:
-        app.logger.error('!!! error happen(errcode=%d) !!!' % e.returncode)
-    return ret.decode('utf-8')
-
 class SubprocessError(Exception):
     pass
 
@@ -98,13 +88,11 @@ def linux_cmd_subprocess(cmd):
     app.logger.info('[' + cmd + ']' + ' start')
     ret = ''
     try:
-        ret = subprocess.run(cmd, shell=True, stdout = subprocess.PIPE, stderr=subprocess.PIPE)
-        if ret.stderr.decode('utf8') != '' :
-            app.logger.error(ret.stderr.decode('utf8').rstrip('\n'))
-            raise Exception
+        ret = subprocess.run(cmd, shell=True, stdout = subprocess.PIPE, stderr=subprocess.STDOUT, check=True)#.stdout
         app.logger.info('[' + cmd + ']' + ' success')
-    except Exception:
+    except subprocess.CalledProcessError as e:
         app.logger.error('[' + cmd + ']' + ' failed')
+        app.logger.error(e.output.decode('utf8'))
         raise SubprocessError(cmd)
     return ret.stdout.decode('utf8')
 
@@ -157,7 +145,7 @@ def show_channel(json_chan, closed=False):
         def tr(bgcolor, item, value):
             try:
                 if item == 'funding txid':
-                    dirinfo = linux_cmd_exec('ls /boot')
+                    dirinfo = linux_cmd_subprocess('ls /boot')
                     if 'RPI_MAINNET' in dirinfo:
                         return '<tr class="headtd"><td>' + item + '</td><td>' + '<a href="https://www.smartbit.com.au/tx/' + value + '" target="_blank">' + value + '</a>' + '</td></tr>'
                     else:
@@ -224,22 +212,22 @@ def callback_createinvoice(params):
         linux_cmd_subprocess('sudo rm -f ' + PROGDIR + '/invoice.txt')
         linux_cmd_subprocess('sudo rm -f ' + PROGDIR + '/invoice.png')
 
-        th = threading.Thread(target=linux_cmd_exec, args=(EXE_GET_INVOICE + str(params.strip()),), name='invoice')
+        th = threading.Thread(target=linux_cmd_subprocess, args=(EXE_GET_INVOICE + str(params.strip()),), name='invoice')
         th.start()
 
         cmd = 'rm -rf ' + STATIC + '/qr'
-        linux_cmd_exec(cmd)
+        linux_cmd_subprocess(cmd)
         cmd = 'mkdir ' + STATIC + '/qr'
-        linux_cmd_exec(cmd)
+        linux_cmd_subprocess(cmd)
 
         sleep(5)
 
         cmd = 'cat ' + PROGDIR + '/invoice.txt'
-        bolt11 = linux_cmd_exec(cmd)
+        bolt11 = linux_cmd_subprocess(cmd)
         date = "{0:%Y%m%d%H%M%S}".format(datetime.datetime.now()) + '.png'
         dir = STATIC + '/qr/' + date + ' '
         cmd = 'qrencode -s 3 -m 1 --foreground=b6b6b6 --background=232727 -o ' + dir + bolt11
-        linux_cmd_exec(cmd)
+        linux_cmd_subprocess(cmd)
         result = '<p></p><a href="#"><img src="./static/qr/' + date + '"></a>'
         result += '<p class="bolt11">' + bolt11 + '<p>'
 
@@ -390,7 +378,7 @@ def callback_getinfo():
 
             result += '<tr><td class="headtd">funding tx</td><td>'
             try:
-                dirinfo = linux_cmd_exec('ls /boot')
+                dirinfo = linux_cmd_subprocess('ls /boot')
                 if 'RPI_MAINNET' in dirinfo:
                     result += '<a href="https://www.smartbit.com.au/tx/' + prm['funding_tx'] + '" target="_blank">' + prm['funding_tx'] + '</a>' + ':' + str(prm['funding_vout'])
                 else:
@@ -452,7 +440,7 @@ def callback_getchannel():
     try:
         app.logger.info('GETCHANNEL start')
         cmd = PTARMDIR + '/showdb -s -d ' + NODEDIR
-        json_chan = json.loads(linux_cmd_exec(cmd))
+        json_chan = json.loads(linux_cmd_subprocess(cmd))
         result = show_channel(json_chan)
         app.logger.info('GETCHANNEL success')
     except Exception as e:
@@ -472,7 +460,7 @@ def callback_closed_channel():
     try:
         app.logger.info('SHOWCLOSEDCHANNEL start')
         cmd = PTARMDIR + '/showdb --listclosed -d ' + NODEDIR
-        json_chan = json.loads(linux_cmd_exec(cmd))
+        json_chan = json.loads(linux_cmd_subprocess(cmd))
 
         result = '<table class="u-full-width">'
         result += '<thead><tr class="headline"><th>index</th><th>channel id</th></tr></thead>'
@@ -498,10 +486,10 @@ def callback_listinvoice():
         app.logger.info('LISTINVOICE start')
 
         cmd = 'rm -rf ' + STATIC + '/qr'
-        linux_cmd_exec(cmd)
+        linux_cmd_subprocess(cmd)
 
         cmd = 'mkdir ' + STATIC + '/qr'
-        linux_cmd_exec(cmd)
+        linux_cmd_subprocess(cmd)
 
         cmd = PTARMDIR + '/ptarmcli --listinvoice | jq \'.result | sort_by(.creation_time) | reverse\''
         response = linux_cmd_subprocess(cmd)
@@ -517,7 +505,7 @@ def callback_listinvoice():
 
             dir = STATIC + '/qr/' + str(imgindex) + '.png '
             cmd = 'qrencode -s 3 -m 1 --foreground=b6b6b6 --background=232727 -o ' + dir + inv['bolt11']
-            linux_cmd_exec(cmd) 
+            linux_cmd_subprocess(cmd) 
             result += '<tr><td class="headtd">bolt11</td><td style="word-break: break-word;white-space: normal;">' + inv['bolt11'] + '</td></tr>'
             result += '<tr><td class="headtd"></td><td style="text-align: right;"><a href="#"><img id="' + str(imgindex) + '" src="./static/qr/' + str(imgindex) + '.png"></a></td>'
             result += '<tr style="height: 15px; border-bottom:1px solid #b6b6b6;"><td></td><td></td</tr>'
@@ -552,8 +540,8 @@ def callback_get1stlayerinfo():
 def client():
     try:
         app.logger.info('CHANGE_CLIENTMODE start')
-        linux_cmd_exec('sudo touch /boot/RPI_CLIENT')
-        linux_cmd_exec('bash ' + PROGDIR + '/bin/wifi_setting.sh')
+        linux_cmd_subprocess('sudo touch /boot/RPI_CLIENT')
+        linux_cmd_subprocess('bash ' + PROGDIR + '/bin/wifi_setting.sh')
         app.logger.info('CHANGE_CLIENTMODE success')
     except Exception as e:        
         app.logger.error('CHANGE_CLIENTMODE failed')
@@ -564,8 +552,8 @@ def client():
 def apmode():
     try:
         app.logger.info('CHANGE_APMODE start')
-        linux_cmd_exec('sudo touch /boot/RPI_APMODE')
-        linux_cmd_exec('bash ' + PROGDIR + '/bin/wifi_setting.sh')
+        linux_cmd_subprocess('sudo touch /boot/RPI_APMODE')
+        linux_cmd_subprocess('bash ' + PROGDIR + '/bin/wifi_setting.sh')
         app.logger.info('CHANGE_APMODE success')
     except Exception as e: 
         result = 'Failed'
@@ -642,7 +630,7 @@ def showclosed(value):
     try:
         app.logger.info('SHOWCLOSED start')
         cmd = PTARMDIR + '/showdb --showclosed ' + value +  ' -d ' + NODEDIR
-        jrpc = json.loads(linux_cmd_exec(cmd), object_pairs_hook=OrderedDict)
+        jrpc = json.loads(linux_cmd_subprocess(cmd), object_pairs_hook=OrderedDict)
         result = '<table class="u-full-width"><caption style="margin-bottom: 30px;">NODE: ' + value + '</caption><thead><tr class="headline"><th class="headtd">name</th><th>value</th></tr></thead><tbody>'
         info = jrpc['channel_info'][0]
         #outputinfo = ['peer_node_id', 'channel_id', ]
@@ -718,11 +706,11 @@ def backup():
         linux_cmd_subprocess(cmd)
 
         #mainnet DB
-        cmd_main = 'tar cvf ' + PROGDIR + '/backup/main.tar ' + '-C ' + PTARMDIR + ' mainnet'
+        cmd_main = 'tar cf ' + PROGDIR + '/backup/main.tar ' + '-C ' + PTARMDIR + ' mainnet'
         linux_cmd_subprocess(cmd_main)
 
         #testnet DB
-        cmd_test = 'tar cvf ' + PROGDIR + '/backup/test.tar ' + '-C ' + PTARMDIR + ' testnet'
+        cmd_test = 'tar cf ' + PROGDIR + '/backup/test.tar ' + '-C ' + PTARMDIR + ' testnet'
         linux_cmd_subprocess(cmd_test)
 
         #wifi setting file
@@ -739,7 +727,7 @@ def backup():
         date = "{0:%Y%m%d%H%M%S}".format(datetime.datetime.now()) + '.tar.gz'
         hostname = linux_cmd_subprocess('hostname').strip()
         filename = 'lnshield_backup_' + hostname + '_' + date
-        cmd = 'sudo tar zcvf ' + filename + ' -C ' + PROGDIR + ' backup'
+        cmd = 'sudo tar zcf ' + filename + ' -C ' + PROGDIR + ' backup'
         linux_cmd_subprocess(cmd)
 
         cmd = 'sudo rm -rf ' + PROGDIR + '/backup/'
@@ -775,11 +763,11 @@ def restore():
         
         #mainnet
         linux_cmd_subprocess('sudo rm -rf '+ PTARMDIR + '/mainnet/')
-        linux_cmd_subprocess('tar xvf '+ PROGDIR + '/backup/main.tar ' + '-C ' + PTARMDIR)
+        linux_cmd_subprocess('tar xf '+ PROGDIR + '/backup/main.tar ' + '-C ' + PTARMDIR)
 
         #testnet
         linux_cmd_subprocess('sudo rm -rf ' + PTARMDIR + '/testnet/')
-        linux_cmd_subprocess('tar xvf ' + PROGDIR + '/backup/test.tar ' + '-C ' + PTARMDIR)
+        linux_cmd_subprocess('tar xf ' + PROGDIR + '/backup/test.tar ' + '-C ' + PTARMDIR)
 
         #wifi
         linux_cmd_subprocess('sudo mv ' + PROGDIR + '/backup/wpa_supplicant.conf /etc/wpa_supplicant')
@@ -812,7 +800,7 @@ def paytowalletlist():
         app.logger.info('PAYTOWALLETLIST start')
         os.chdir(NODEDIR)
         cmd = PTARMDIR + '/ptarmcli --paytowallet=0'
-        json_chan = json.loads(linux_cmd_exec(cmd))
+        json_chan = json.loads(linux_cmd_subprocess(cmd))
         json_chan = json_chan['result']
         jwallet = json_chan['wallet']
         jlist = json_chan['list']
@@ -842,7 +830,7 @@ def paytowallet():
         app.logger.info('PAYTOWALLET start')
         os.chdir(NODEDIR)
         cmd = PTARMDIR + '/ptarmcli --paytowallet=1'
-        linux_cmd_exec(cmd)
+        linux_cmd_subprocess(cmd)
         msg = '<p style="margin-top: 24px;">OK</p>'
         app.logger.info('PAYTOWALLET success')
     except Exception as e:
@@ -925,7 +913,7 @@ def downloadlog():
         date = "{0:%Y%m%d%H%M%S}".format(datetime.datetime.now()) + '.tar.gz'
         hostname = linux_cmd_subprocess('hostname').strip()
         filename = 'lnshield_log_' + hostname + '_' + date
-        cmd = 'tar zcvf ' + filename + ' -C ' + PROGDIR + ' logfiles'
+        cmd = 'tar zcf ' + filename + ' -C ' + PROGDIR + ' logfiles'
         linux_cmd_subprocess(cmd)
 
         linux_cmd_subprocess('rm -rf ' + PROGDIR + '/logfiles')
