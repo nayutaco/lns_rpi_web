@@ -415,6 +415,14 @@ def callback_getinfo():
                 result += '---'
             result += '</td></tr>'
 
+            try:            	
+                annosig  = '<tr><td class="headtd">announcement</td><td>'	
+                annosig += prm['announcement_signatures']
+                annosig += '</td></tr>'
+                result += annosig
+            except:	
+                pass
+
             result += '<tr><td class="headtd">connect</td><td>'
             try:
                 if prm['role'] == 'client':
