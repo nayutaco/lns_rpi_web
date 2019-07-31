@@ -31,7 +31,6 @@ STATIC = ''
 EXE_GET_INVOICE = ''
 LOG_FILE = ''
 
-
 # table row
 TABLE_ROW_COL0 = '#f8f8f8'
 TABLE_ROW_COL1 = '#f0f0f0'
@@ -45,27 +44,26 @@ def config_init(conf_path):
 
     config.read(conf_path)
 
-PROGDIR = config.get('PATH', 'PROGDIR')
-PTARMDIR = config.get('PATH', 'PTARMDIR')
-NODEDIR = config.get('PATH', 'NODEDIR')
-WEBDIR = config.get('PATH', 'WEBDIR')
-STATIC = config.get('PATH', 'STATIC')
+    PROGDIR = config.get('PATH', 'PROGDIR')
+    PTARMDIR = config.get('PATH', 'PTARMDIR')
+    NODEDIR = config.get('PATH', 'NODEDIR')
+    WEBDIR = config.get('PATH', 'WEBDIR')
+    STATIC = config.get('PATH', 'STATIC')
 
-# don't forget last space!!
-EXE_GET_INVOICE = 'bash ' + PROGDIR + '/bin/get_invoice.sh '
+    # don't forget last space!!
+    EXE_GET_INVOICE = 'bash ' + PROGDIR + '/bin/get_invoice.sh '
 
     LOG_FILE = WEBDIR + "/logs/rpiweb.log"
 
-
 def flask_init():
-app.secret_key = 'seacret_key'
-app.config['SECRET_KEY'] = str(random.random())
+    app.secret_key = 'seacret_key'
+    app.config['SECRET_KEY'] = str(random.random())
 
-# Add RotatingFileHandler to Flask Logger
+    # Add RotatingFileHandler to Flask Logger
     handler = logging.handlers.RotatingFileHandler(LOG_FILE, "a+", maxBytes=1000000, backupCount=5)
-logging.basicConfig(level=logging.INFO)
-handler.setFormatter(logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s: %(message)s'))
-app.logger.addHandler(handler)
+    logging.basicConfig(level=logging.INFO)
+    handler.setFormatter(logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s: %(message)s'))
+    app.logger.addHandler(handler)
 
 @auth.get_password
 def get_pw(id):
