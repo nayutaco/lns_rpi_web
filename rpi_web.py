@@ -7,7 +7,6 @@ from time import sleep
 import datetime
 from collections import OrderedDict
 from glob import glob
-import CallbackServer
 import configparser
 import json
 import socket
@@ -23,7 +22,28 @@ import logging.handlers
 import io
 
 config = configparser.SafeConfigParser()
-config.read('/home/pi/Prog/bin/rpi_config.ini')
+
+PROGDIR = ''
+PTARMDIR = ''
+NODEDIR = ''
+WEBDIR = ''
+STATIC = ''
+EXE_GET_INVOICE = ''
+LOG_FILE = ''
+
+
+# table row
+TABLE_ROW_COL0 = '#f8f8f8'
+TABLE_ROW_COL1 = '#f0f0f0'
+
+app = Flask(__name__)
+auth = HTTPDigestAuth()
+
+
+def config_init(conf_path):
+    global PROGDIR, PTARMDIR, NODEDIR, WEBDIR, STATIC, EXE_GET_INVOICE, LOG_FILE
+
+    config.read(conf_path)
 
 PROGDIR = config.get('PATH', 'PROGDIR')
 PTARMDIR = config.get('PATH', 'PTARMDIR')
@@ -34,18 +54,15 @@ STATIC = config.get('PATH', 'STATIC')
 # don't forget last space!!
 EXE_GET_INVOICE = 'bash ' + PROGDIR + '/bin/get_invoice.sh '
 
-# table row
-TABLE_ROW_COL0 = '#f8f8f8'
-TABLE_ROW_COL1 = '#f0f0f0'
+    LOG_FILE = WEBDIR + "/logs/rpiweb.log"
 
-app = Flask(__name__)
+
+def flask_init():
 app.secret_key = 'seacret_key'
-
 app.config['SECRET_KEY'] = str(random.random())
-auth = HTTPDigestAuth()
 
 # Add RotatingFileHandler to Flask Logger
-handler = logging.handlers.RotatingFileHandler("/home/pi/Prog/rpi_web/logs/rpiweb.log", "a+", maxBytes=1000000, backupCount=5)
+    handler = logging.handlers.RotatingFileHandler(LOG_FILE, "a+", maxBytes=1000000, backupCount=5)
 logging.basicConfig(level=logging.INFO)
 handler.setFormatter(logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s: %(message)s'))
 app.logger.addHandler(handler)
@@ -766,7 +783,7 @@ def restore():
         os.chdir(PROGDIR)
         cmd = 'sudo rm -rf ' + PROGDIR + '/backup/'
         linux_cmd_subprocess(cmd)
-        cmd = 'find /home/pi/Prog -maxdepth 1 -type f -name "*.tar.gz" -exec tar zxf {} \;' 
+        cmd = 'find ' + PROGDIR + ' -maxdepth 1 -type f -name "*.tar.gz" -exec tar zxf {} \;' 
         linux_cmd_subprocess(cmd)
         
         #mainnet
@@ -969,11 +986,11 @@ def resetchaindata():
             app.logger.info('"ptarmd" has already stopped.')
         dirinfo = linux_cmd_subprocess('ls /boot')
         if 'RPI_MAINNET' in dirinfo:
-            cmd = 'rm -f /home/pi/Prog/ptarmigan/install/node/walletmain/ptarm_p2wpkh.spvchain'
+            cmd = 'rm -f ' + NODEDIR + '/walletmain/ptarm_p2wpkh.spvchain'
             linux_cmd_subprocess(cmd)
             result = 'OK: Chaindata of Mainnet is deleted.'
         else:
-            cmd = 'rm -f /home/pi/Prog/ptarmigan/install/node/wallettest/ptarm_p2wpkh.spvchain'
+            cmd = 'rm -f ' + NODEDIR + '/wallettest/ptarm_p2wpkh.spvchain'
             linux_cmd_subprocess(cmd)
             result = 'OK: Chaindata of Testnet is deleted.'
     except Exception as e:
@@ -987,16 +1004,16 @@ def epaperreload(value):
     try:
         app.logger.info('EPAPER_RELOAD start')
         if value == 'REBOOT':
-            cmd = 'bash /home/pi/Prog/bin/epaper_led.sh ' + 'REBOOT'
+            cmd = 'bash ' + PROGDIR + '/bin/epaper_led.sh ' + 'REBOOT'
             linux_cmd_subprocess(cmd)
         elif value == 'SHUTDOWN':
-            cmd = 'bash /home/pi/Prog/bin/epaper_led.sh ' + 'SHUTDOWN'
+            cmd = 'bash ' + PROGDIR + '/bin/epaper_led.sh ' + 'SHUTDOWN'
             linux_cmd_subprocess(cmd)
         elif value == '':
-            cmd = 'bash /home/pi/Prog/bin/epaper_led.sh ' + 'CLIENT'
+            cmd = 'bash ' + PROGDIR + '/bin/epaper_led.sh ' + 'CLIENT'
             linux_cmd_subprocess(cmd)
         elif value == '':
-            cmd = 'bash /home/pi/Prog/bin/epaper_led.sh ' + 'APMODE'
+            cmd = 'bash ' + PROGDIR + '/bin/epaper_led.sh ' + 'APMODE'
             linux_cmd_subprocess(cmd)
         app.logger.info('EPAPER_RELOAD success')
     except Exception as e:
@@ -1422,5 +1439,18 @@ def li25():
     return render_template('list25.html', result = Markup(result))
 
 if __name__ == '__main__':
+    if len(sys.argv) == 1:
+        port = 80
+    else:
+        port = sys.argv[1]
+
+    if len(sys.argv) <= 2:
+        conf_path = '/home/pi/Prog/bin/rpi_config.ini'
+    else:
+        conf_path = sys.argv[2]
+
+    config_init(conf_path)
+    flask_init()
     app.logger.info('START RPI_WEB')
-    serve(app, host='0.0.0.0', port=80)
+    app.logger.info('CONFIG=' + conf_path)
+    serve(app, host='0.0.0.0', port=port)
