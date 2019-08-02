@@ -28,6 +28,7 @@ PTARMDIR = ''
 NODEDIR = ''
 WEBDIR = ''
 STATIC = ''
+COPYNODEDIR = ''
 EXE_GET_INVOICE = ''
 LOG_FILE = ''
 
@@ -40,7 +41,7 @@ auth = HTTPDigestAuth()
 
 
 def config_init(conf_path):
-    global PROGDIR, PTARMDIR, NODEDIR, WEBDIR, STATIC, EXE_GET_INVOICE, LOG_FILE
+    global PROGDIR, PTARMDIR, NODEDIR, WEBDIR, STATIC, COPYNODEDIR, EXE_GET_INVOICE, LOG_FILE
 
     config.read(conf_path)
 
@@ -49,6 +50,7 @@ def config_init(conf_path):
     NODEDIR = config.get('PATH', 'NODEDIR')
     WEBDIR = config.get('PATH', 'WEBDIR')
     STATIC = config.get('PATH', 'STATIC')
+    COPYNODEDIR = config.get('PATH', 'COPYNODEDIR')
 
     # don't forget last space!!
     EXE_GET_INVOICE = 'bash ' + PROGDIR + '/bin/get_invoice.sh '
@@ -729,11 +731,11 @@ def backup():
         linux_cmd_subprocess(cmd)
 
         #mainnet DB
-        cmd_main = 'tar cf ' + PROGDIR + '/backup/main.tar ' + '-C ' + PTARMDIR + ' mainnet'
+        cmd_main = 'tar cf ' + PROGDIR + '/backup/main.tar ' + '-C ' + COPYNODEDIR + ' mainnet'
         linux_cmd_subprocess(cmd_main)
 
         #testnet DB
-        cmd_test = 'tar cf ' + PROGDIR + '/backup/test.tar ' + '-C ' + PTARMDIR + ' testnet'
+        cmd_test = 'tar cf ' + PROGDIR + '/backup/test.tar ' + '-C ' + COPYNODEDIR + ' testnet'
         linux_cmd_subprocess(cmd_test)
 
         #wifi setting file
@@ -778,19 +780,30 @@ def backup():
 def restore():
     try:
         app.logger.info('RESTORE start')
+
+        try:
+            os.chdir(NODEDIR)
+            linux_cmd_subprocess('sudo systemctl stop rpi_ptarm')
+            sleep(3)
+        except:
+            app.logger.info('"ptarmd" has already stopped.')
+
         os.chdir(PROGDIR)
         cmd = 'sudo rm -rf ' + PROGDIR + '/backup/'
         linux_cmd_subprocess(cmd)
-        cmd = 'find ' + PROGDIR + ' -maxdepth 1 -type f -name "*.tar.gz" -exec tar zxf {} \;' 
+        cmd = 'find ' + PROGDIR + '/ -maxdepth 1 -type f -name "*.tar.gz" -exec tar zxf {} \;' 
         linux_cmd_subprocess(cmd)
         
+        #bak
+        linux_cmd_subprocess('mv '+ COPYNODEDIR + '/mainnet ' + COPYNODEDIR + '/mainnet.bak')
+        linux_cmd_subprocess('mv '+ COPYNODEDIR + '/testnet ' + COPYNODEDIR + '/testnet.bak')
+        linux_cmd_subprocess('sudo mv /etc/wpa_supplicant/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf.bak')
+
         #mainnet
-        linux_cmd_subprocess('sudo rm -rf '+ PTARMDIR + '/mainnet/')
-        linux_cmd_subprocess('tar xf '+ PROGDIR + '/backup/main.tar ' + '-C ' + PTARMDIR)
+        linux_cmd_subprocess('tar xf '+ PROGDIR + '/backup/main.tar ' + '-C ' + COPYNODEDIR)
 
         #testnet
-        linux_cmd_subprocess('sudo rm -rf ' + PTARMDIR + '/testnet/')
-        linux_cmd_subprocess('tar xf ' + PROGDIR + '/backup/test.tar ' + '-C ' + PTARMDIR)
+        linux_cmd_subprocess('tar xf ' + PROGDIR + '/backup/test.tar ' + '-C ' + COPYNODEDIR)
 
         #wifi
         linux_cmd_subprocess('sudo mv ' + PROGDIR + '/backup/wpa_supplicant.conf /etc/wpa_supplicant')
@@ -804,6 +817,9 @@ def restore():
         linux_cmd_subprocess('sudo rm -rf ' + PROGDIR + '/backup/')
         linux_cmd_subprocess('sudo rm -rf ' + PROGDIR + '/logfiles/')
         linux_cmd_subprocess('sudo rm -rf ' + PROGDIR + '/*.tar.gz')
+        linux_cmd_subprocess('rm -rf '+ COPYNODEDIR + '/mainnet.bak')
+        linux_cmd_subprocess('rm -rf ' + COPYNODEDIR + '/testnet.bak')
+        linux_cmd_subprocess('sudo rm -f /etc/wpa_supplicant/wpa_supplicant.conf.bak')
 
         result = '<p style="margin-bottom: 0px;">Restore has completed.</p>' + '<p style="margin-top: 0px;">It needs to reboot with Client mode.</p>'
         app.logger.info('RESTORE success')
@@ -812,6 +828,14 @@ def restore():
         app.logger.error('RESTORE failed')
         app.logger.error('type:' + str(type(e)))
         app.logger.error('args:' + str(e.args))
+
+        #recovery
+        linux_cmd_subprocess('rm -rf '+ COPYNODEDIR + '/mainnet')
+        linux_cmd_subprocess('rm -rf ' + COPYNODEDIR + '/testnet')
+        linux_cmd_subprocess('sudo rm -f /etc/wpa_supplicant/wpa_supplicant.conf')
+        linux_cmd_subprocess('mv '+ COPYNODEDIR + '/mainnet.bak ' + COPYNODEDIR + '/mainnet')
+        linux_cmd_subprocess('mv '+ COPYNODEDIR + '/testnet.bak ' + COPYNODEDIR + '/testnet')
+        linux_cmd_subprocess('sudo mv /etc/wpa_supplicant/wpa_supplicant.conf.bak /etc/wpa_supplicant/wpa_supplicant.conf')
     return result
 
 def upload():
@@ -919,13 +943,13 @@ def downloadlog():
         linux_cmd_subprocess(cmd)
 
         #~/Prog/ptarmigan/install/mainnet
-        if os.path.exists(PTARMDIR + '/mainnet/logs'):
-            cmd = 'cp -r ' + PTARMDIR + '/mainnet/logs/ ' + PROGDIR + '/logfiles/mainnet'
+        if os.path.exists(COPYNODEDIR + '/mainnet/logs'):
+            cmd = 'cp -r ' + COPYNODEDIR + '/mainnet/logs/ ' + PROGDIR + '/logfiles/mainnet'
             linux_cmd_subprocess(cmd)
 
         #~/Prog/ptarmigan/install/mainnet
-        if os.path.exists(PTARMDIR + '/testnet/logs'):
-            cmd = 'cp -r ' + PTARMDIR + '/testnet/logs/ ' + PROGDIR + '/logfiles/testnet' 
+        if os.path.exists(COPYNODEDIR + '/testnet/logs'):
+            cmd = 'cp -r ' + COPYNODEDIR + '/testnet/logs/ ' + PROGDIR + '/logfiles/testnet' 
             linux_cmd_subprocess(cmd)
 
         #~/Prog/rpi_web/logs
@@ -1044,11 +1068,11 @@ def sendbk():
         file = (file.strip())
 
         #initialize DB
-        os.chdir(PTARMDIR + '/mainnet')
+        os.chdir(COPYNODEDIR + '/mainnet')
         cmd = 'sudo ls | grep -v "script" | xargs rm -rf'
         linux_cmd_subprocess(cmd)
 
-        os.chdir(PTARMDIR + '/testnet')
+        os.chdir(COPYNODEDIR + '/testnet')
         cmd = 'sudo ls | grep -v "script" | xargs rm -rf'
         linux_cmd_subprocess(cmd)
 
