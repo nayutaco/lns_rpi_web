@@ -29,6 +29,12 @@ NODEDIR = ''
 WEBDIR = ''
 STATIC = ''
 COPYNODEDIR = ''
+PROGVER = ''
+PTARMVER = ''
+BINVER = ''
+EPAPERVER = ''
+UARTVER = ''
+WEBVER = ''
 EXE_GET_INVOICE = ''
 LOG_FILE = ''
 
@@ -41,7 +47,9 @@ auth = HTTPDigestAuth()
 
 
 def config_init(conf_path):
-    global PROGDIR, PTARMDIR, NODEDIR, WEBDIR, STATIC, COPYNODEDIR, EXE_GET_INVOICE, LOG_FILE
+    global PROGDIR, PTARMDIR, NODEDIR, WEBDIR, STATIC, COPYNODEDIR,\
+            PROGVER, PTARMVER, BINVER, EPAPERVER, UARTVER, WEBVER,\
+            EXE_GET_INVOICE, LOG_FILE
 
     config.read(conf_path)
 
@@ -51,6 +59,12 @@ def config_init(conf_path):
     WEBDIR = config.get('PATH', 'WEBDIR')
     STATIC = config.get('PATH', 'STATIC')
     COPYNODEDIR = config.get('PATH', 'COPYNODEDIR')
+    PROGVER = config.get('PATH', 'PROGVER')
+    PTARMVER = config.get('PATH', 'PTARMVER')
+    BINVER = config.get('PATH', 'BINVER')
+    EPAPERVER = config.get('PATH', 'EPAPERVER')
+    UARTVER = config.get('PATH', 'UARTVER')
+    WEBVER = config.get('PATH', 'WEBVER')
 
     # don't forget last space!!
     EXE_GET_INVOICE = 'bash ' + PROGDIR + '/bin/get_invoice.sh '
@@ -649,7 +663,46 @@ def deviceinfo():
         app.logger.error('type:' + str(type(e)))
         app.logger.error('args:' + str(e.args))
 
-    return ip, maxsize, usedsize, ssid, hn, user
+    #version
+    ver_prog = '---'
+    ver_ptarm = '---'
+    ver_bin = '---'
+    ver_epaper = '---'
+    ver_uart = '---'
+    ver_web = '---'
+    try:
+        with open(PROGVER) as f:
+            ver_prog = f.read()
+    except:
+        pass
+    try:
+        with open(PTARMVER) as f:
+            ver_ptarm = f.read()
+    except:
+        pass
+    try:
+        with open(BINVER) as f:
+            ver_bin = f.read()
+    except:
+        pass
+    try:
+        with open(EPAPERVER) as f:
+            ver_epaper = f.read()
+    except:
+        pass
+    try:
+        with open(UARTVER) as f:
+            ver_uart = f.read()
+    except:
+        pass
+    try:
+        with open(WEBVER) as f:
+            ver_web = f.read()
+    except:
+        pass
+
+    return ip, maxsize, usedsize, ssid, hn, user,\
+            ver_prog, ver_ptarm, ver_bin, ver_epaper, ver_uart, ver_web
 
 def showclosed(value):
     try:
@@ -1310,9 +1363,27 @@ def li17():
         ssid = result[3]
         hn = result[4]
         user = result[5]
+        ver_prog = result[6]
+        ver_ptarm = result[7]
+        ver_bin = result[8]
+        ver_epaper = result[9]
+        ver_uart = result[10]
+        ver_web = result[11]
     except:
         app.logger.error('NG')
-    return render_template('list17.html', ip = ip, maxsize = maxsize, usedsize = usedsize, ssid = ssid, hostname = hn, id = user)
+    return render_template('list17.html',\
+                ip = ip,
+                maxsize = maxsize,
+                usedsize = usedsize,
+                ssid = ssid,
+                hostname = hn,
+                id = user,
+                ver_prog = ver_prog,
+                ver_ptarm = ver_ptarm,
+                ver_bin = ver_bin,
+                ver_epaper = ver_epaper,
+                ver_uart = ver_uart,
+                ver_web = ver_web)
 
 @app.route('/list18.html', methods = ['GET', 'POST'])
 def li18():

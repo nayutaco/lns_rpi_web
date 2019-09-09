@@ -17,6 +17,7 @@
                             <td style="align-items: center; display:inline-flex;width: 100%">{{id}}<br>
                                 <form action="/list23.html" style="margin: 0 0 0 auto;padding-left: 5px;"><button class="infochange"><i class="fas fa-chevron-circle-left"></i></button></form>
                             </td>
+                        </tr>
                         <tr style="height: 31.5px;">
                             <td class="headtd" style="vertical-align: middle;">IP</td>
                             <td>{{ip}}</td>
@@ -34,6 +35,39 @@
                         <tr style="height: 31.5px;">
                             <td class="headtd" style="vertical-align: middle;">DISK(used/max)</td>
                             <td>{{usedsize}}B / {{maxsize}}B</td>
+                        </tr>
+                        <tr style="height: 31.5px;">
+                            <td class="headtd">version</td>
+                            <td>
+                                <table>
+                                    <tbody>
+                                        <tr style="height: 31.5px;">
+                                            <td>Program</td>
+                                            <td>{{ver_prog}}</td>
+                                        </tr>
+                                        <tr style="height: 31.5px;">
+                                            <td>Ptarmigan</td>
+                                            <td>{{ver_ptarm}}</td>
+                                        </tr>
+                                        <tr style="height: 31.5px;">
+                                            <td>bin</td>
+                                            <td>{{ver_bin}}</td>
+                                        </tr>
+                                        <tr style="height: 31.5px;">
+                                            <td>ePaper</td>
+                                            <td>{{ver_epaper}}</td>
+                                        </tr>
+                                        <tr style="height: 31.5px;">
+                                            <td>UART</td>
+                                            <td>{{ver_uart}}</td>
+                                        </tr>
+                                        <tr style="height: 31.5px;">
+                                            <td>Web</td>
+                                            <td>{{ver_web}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
