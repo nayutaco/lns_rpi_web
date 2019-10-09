@@ -1009,6 +1009,10 @@ def downloadlog():
         cmd = 'cp -r ' + WEBDIR + '/logs/ ' + PROGDIR + '/logfiles/rpiweb'
         linux_cmd_subprocess(cmd)
 
+        #dmesg
+        cmd = 'dmesg > ' + PROGDIR + '/logfiles/dmesg.log'
+        linux_cmd_subprocess(cmd)
+
         os.chdir(PROGDIR)
         date = "{0:%Y%m%d%H%M%S}".format(datetime.datetime.now()) + '.tar.gz'
         hostname = linux_cmd_subprocess('hostname').strip()
